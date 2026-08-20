@@ -10,19 +10,19 @@ body{background:linear-gradient(135deg,#a8e063,#56ab2f);font-family:Arial;text-a
 .btn-aparat{background:#2e7d32;color:white;border:0;padding:15px;border-radius:10px;width:100%;margin:10px 0;font-weight:bold;font-size:16px;cursor:pointer}
 .btn-problem{background:#388e3c;color:white;border:0;padding:12px;border-radius:10px;width:100%;margin:8px 0;font-weight:bold;font-size:15px;cursor:pointer}
 img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
-#wynik{background:#e8f5e9;padding:15px;border-radius:10px;margin-top:15px;text-align:left;display:none}
+#wynik{background:#e8f5e9;padding:15px;border-radius:10px;margin-top:15px;text-align:left;display:none;border-left:4px solid #2e7d32}
+.info{color:#f57c00;font-weight:bold}
 </style>
 </head>
 <body>
 <div class="box">
 <h1>🌿 Zielony Lekarz OFFLINE 🌿</h1>
-<p>1. Zrób zdjęcie 2. Wybierz problem</p>
 
 <input type="file" id="f" accept="image/*" capture="environment" style="display:none">
-<button class="btn-aparat" onclick="f.click()">📷 Zrób zdjęcie / Wybierz z galerii</button>
+<button class="btn-aparat" onclick="f.click()">📷 KROK 1: Zrób zdjęcie</button>
 <img id="img">
 
-<p><b>Co widzisz na liściach?</b></p>
+<p class="info">KROK 2: Wybierz co widzisz na liściach ↓</p>
 <button class="btn-problem" onclick="diagnoza('suche')">🥀 Suche, zwisające, brązowe końcówki</button>
 <button class="btn-problem" onclick="diagnoza('zolte')">💛 Żółte liście, gniją u dołu</button>
 <button class="btn-problem" onclick="diagnoza('kropki')">🐛 Kropki, pajęczyny, dziurki</button>
@@ -32,10 +32,10 @@ img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
 <div id="wynik"></div>
 </div>
 <script>
-f.onchange=e=>{ 
-  let r=new FileReader(); 
-  r.onload=ev=>{img.src=ev.target.result; img.style.display='block'}; 
-  r.readAsDataURL(e.target.files[0]) 
+f.onchange=e=>{
+  let r=new FileReader();
+  r.onload=ev=>{img.src=ev.target.result; img.style.display='block'};
+  r.readAsDataURL(e.target.files[0])
 }
 function diagnoza(p){
   let odp = {
@@ -46,6 +46,7 @@ function diagnoza(p){
     'ok': '<b>Diagnoza:</b> Roślina zdrowa 🌿<br><b>Porada:</b> Podlewaj 1x w tyg. Nawoź 1x w miesiącu wiosną/latem.'
   };
   wynik.innerHTML = odp[p]; wynik.style.display = 'block';
+  wynik.scrollIntoView({behavior: 'smooth'}); // przewija do wyniku
 }
 </script>
 </body>
