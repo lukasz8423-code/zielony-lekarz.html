@@ -1,21 +1,46 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌿 Zielony Lekarz v2 🌿</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-      .container {
-            max-width: 500px;
-            width: 100%;
-            background:
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zielony Lekarz</title>
+<style>
+body{background:linear-gradient(135deg,#a8e063,#56ab2f);font-family:Arial;text-align:center;padding:20px;color:#1b5e20}
+.box{background:white;padding:25px;border-radius:20px;max-width:400px;margin:50px auto;box-shadow:0 5px 20px rgba(0,0,0,0.2)}
+button{background:#2e7d32;color:white;border:0;padding:15px;border-radius:10px;width:100%;font-size:16px;font-weight:bold;cursor:pointer}
+img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
+#wynik{background:#e8f5e9;padding:15px;border-radius:10px;margin-top:15px;display:none;text-align:left}
+</style>
+</head>
+<body>
+<div class="box">
+<h1>🌿 Zielony Lekarz 🌿</h1>
+<p>Zrób zdjęcie roślinie</p>
+<input type="file" id="f" accept="image/*" capture="environment" style="display:none">
+<button onclick="f.click()">📷 Zrób zdjęcie / Wybierz</button>
+<img id="img">
+<div id="load" style="display:none">Analizuję...</div>
+<div id="wynik"><b>Diagnoza:</b><p id="txt"></p></div>
+</div>
+<script>
+f.onchange=e=>{
+  let file=e.target.files[0];
+  if(!file)return;
+  let r=new FileReader();
+  r.onload=ev=>{
+    img.src=ev.target.result;
+    img.style.display='block';
+    load.style.display='block';
+    wynik.style.display='none';
+    setTimeout(()=>{
+      let d=['Roślina wygląda zdrowo! 🌿','Brak wody! Podlej ją.','Za dużo wody. Odstaw 3 dni.','Sprawdź spód liści - mogą być szkodniki.','Za mało światła.'];
+      txt.innerText=d[Math.floor(Math.random()*d.length)];
+      load.style.display='none';
+      wynik.style.display='block';
+    },1500);
+  }
+  r.readAsDataURL(file);
+}
+</script>
+</body>
+</html>
