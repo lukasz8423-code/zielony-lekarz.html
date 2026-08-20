@@ -7,8 +7,9 @@
 <style>
 body{background:linear-gradient(135deg,#a8e063,#56ab2f);font-family:Arial;text-align:center;padding:20px;color:#1b5e20;margin:0}
 .box{background:white;padding:25px;border-radius:20px;max-width:400px;margin:20px auto}
-button{background:#2e7d32;color:white;border:0;padding:12px;border-radius:10px;width:100%;margin:8px 0;font-weight:bold;font-size:15px}
-img{max-width:100%;border-radius:15px;margin-top:15px}
+.btn-aparat{background:#2e7d32;color:white;border:0;padding:15px;border-radius:10px;width:100%;margin:10px 0;font-weight:bold;font-size:16px;cursor:pointer}
+.btn-problem{background:#388e3c;color:white;border:0;padding:12px;border-radius:10px;width:100%;margin:8px 0;font-weight:bold;font-size:15px;cursor:pointer}
+img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
 #wynik{background:#e8f5e9;padding:15px;border-radius:10px;margin-top:15px;text-align:left;display:none}
 </style>
 </head>
@@ -16,20 +17,26 @@ img{max-width:100%;border-radius:15px;margin-top:15px}
 <div class="box">
 <h1>🌿 Zielony Lekarz OFFLINE 🌿</h1>
 <p>1. Zrób zdjęcie 2. Wybierz problem</p>
-<input type="file" id="f" accept="image/*" capture="environment">
+
+<input type="file" id="f" accept="image/*" capture="environment" style="display:none">
+<button class="btn-aparat" onclick="f.click()">📷 Zrób zdjęcie / Wybierz z galerii</button>
 <img id="img">
 
 <p><b>Co widzisz na liściach?</b></p>
-<button onclick="diagnoza('suche')">🥀 Suche, zwisające, brązowe końcówki</button>
-<button onclick="diagnoza('zolte')">💛 Żółte liście, gniją u dołu</button>
-<button onclick="diagnoza('kropki')">🐛 Kropki, pajęczyny, dziurki</button>
-<button onclick="diagnoza('bledne')">⚪ Blade, wyciągnięta roślina</button>
-<button onclick="diagnoza('ok')">✅ Wygląda zdrowo</button>
+<button class="btn-problem" onclick="diagnoza('suche')">🥀 Suche, zwisające, brązowe końcówki</button>
+<button class="btn-problem" onclick="diagnoza('zolte')">💛 Żółte liście, gniją u dołu</button>
+<button class="btn-problem" onclick="diagnoza('kropki')">🐛 Kropki, pajęczyny, dziurki</button>
+<button class="btn-problem" onclick="diagnoza('bledne')">⚪ Blade, wyciągnięta roślina</button>
+<button class="btn-problem" onclick="diagnoza('ok')">✅ Wygląda zdrowo</button>
 
 <div id="wynik"></div>
 </div>
 <script>
-f.onchange=e=>{ let r=new FileReader(); r.onload=ev=>{img.src=ev.target.result}; r.readAsDataURL(e.target.files[0]) }
+f.onchange=e=>{ 
+  let r=new FileReader(); 
+  r.onload=ev=>{img.src=ev.target.result; img.style.display='block'}; 
+  r.readAsDataURL(e.target.files[0]) 
+}
 function diagnoza(p){
   let odp = {
     'suche': '<b>Diagnoza:</b> Brak wody / Za suche powietrze<br><b>Porada:</b> Podlej obficie. Postaw na podstawce z keramzytem i wodą. Spryskuj 2x w tyg.',
