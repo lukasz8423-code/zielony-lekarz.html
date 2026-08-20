@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zielony Lekarz AI</title>
+<title>Zielony Lekarz Pl@ntNet</title>
 <style>
 body{background:linear-gradient(135deg,#a8e063,#56ab2f);font-family:Arial;text-align:center;padding:20px;color:#1b5e20;margin:0}
 .box{background:white;padding:25px;border-radius:20px;max-width:400px;margin:20px auto;box-shadow:0 5px 20px rgba(0,0,0,0.2)}
@@ -13,16 +13,19 @@ img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
 .porada{background:#fff3cd;border-left:4px solid #ff9800;padding:12px;margin-top:10px;border-radius:5px;text-align:left}
 .nazwa{font-size:20px;color:#2e7d32;font-weight:bold}
 #load{color:#2e7d32;font-weight:bold}
+.limit{background:#e1f5fe;padding:10px;border-radius:8px;margin-bottom:10px;font-size:14px}
+.błąd{background:#ffebee;color:#c62828;padding:10px;border-radius:8px;margin-top:10px}
 </style>
 </head>
 <body>
 <div class="box">
 <h1>🌿 Zielony Lekarz AI 🌿</h1>
-<p>Zrób zdjęcie roślinie z bliska</p>
+<div class="limit">Wykorzystano: <span id="licznik">0</span> / 1000 skanów w tym miesiącu</div>
+<p>Zrób zdjęcie liściom z bliska</p>
 <input type="file" id="f" accept="image/*" capture="environment" style="display:none">
 <button onclick="f.click()">📷 Zrób zdjęcie / Wybierz</button>
 <img id="img">
-<div id="load" style="display:none">Analizuję przez AI... 2-3s</div>
+<div id="load" style="display:none">Analizuję przez Pl@ntNet AI... 3-4s</div>
 
 <div id="wynik">
   <p class="nazwa" id="nazwa"></p>
@@ -30,11 +33,77 @@ img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
   <b>Diagnoza:</b>
   <p id="txt"></p>
   <div class="porada" id="porada"></div>
+  <div class="błąd" id="blad" style="display:none"></div>
 </div>
 </div>
 
 <script>
-const API_KEY = "2b10OWgOkx2Bt2PQMAfqb8ZJGO"; // TWÓJ KLUCZ
+const API_KEY = "2b10OWgOkx2Bt2PQMAfqb8ZJGO";
+let uzyteSkanowania = 0; // licznik lokalny
 
 f.onchange=async e=>{
-  let
+  let file=e.target.files[0];
+  if(!file)return;
+  if(uzyteSkanowania >= 1000){
+    alert("Przekroczono limit 1000 skanów w tym miesiącu!");
+    return;
+  }
+
+  let r=new FileReader();
+  r.onload=ev=>{
+    img.src=ev.target.result;
+    img.style.display='block';
+    load.style.display='block';
+    wynik.style.display='none';
+    blad.style.display='none';
+  }
+  r.readAsDataURL(file);
+
+  let formData = new FormData();
+  formData.append("images", file);
+  formData.append("organs", "leaf");
+
+  try{
+    let res = await fetch(`https://my-api.plantnet.org/v2/identify/all?api-key=${API_KEY}`,{
+      method:"POST",
+      body:formData
+    });
+
+    if(!res.ok) throw new Error("Błąd serwera: " + res.status);
+
+    let data = await res.json();
+    uzyteSkanowania++;
+    licznik.innerText = uzyteSkanowania;
+
+    load.style.display='none';
+    wynik.style.display='block';
+
+    if(data.results && data.results.length > 0){
+      let roslina = data.results[0];
+      let nazwaPL = roslina.species.commonNames?.[0] || roslina.species.scientificName;
+      nazwa.innerText = "🌱 " + nazwaPL;
+      pewnosc.innerText = Math.round(roslina.score * 100);
+
+      if(roslina.score > 0.5){
+        txt.innerText = "Roślina rozpoznana!";
+        porada.innerHTML = "<b>Porada:</b> Sprawdź podlewanie i światło. Zrób zdjęcie z bliska liścia dla diagnozy choroby.";
+      } else {
+        txt.innerText = "Niska pewność " + Math.round(roslina.score * 100) + "%";
+        porada.innerHTML = "<b>Porada:</b> Zrób zdjęcie przy dziennym świetle, sam liść.";
+      }
+    } else {
+      nazwa.innerText = "Nie rozpoznano";
+      txt.innerText = "Spróbuj jeszcze raz. Zrób zdjęcie liścia.";
+    }
+  } catch(err){
+    load.style.display='none';
+    wynik.style.display='block';
+    blad.style.display='block';
+    blad.innerHTML = "<b>BŁĄD:</b> " + err.message + "<br><br>To wina CORS. Na telefonie z githuba Pl@ntNet blokuje. <br><b>Rozwiązanie:</b> Otwórz stronę przez Netlify lub Vercel zamiast github.io";
+    nazwa.innerText = "Błąd połączenia";
+    txt.innerText = "API zablokowało żądanie";
+  }
+}
+</script>
+</body>
+</html>
