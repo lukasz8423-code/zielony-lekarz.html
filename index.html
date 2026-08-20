@@ -5,104 +5,61 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zielony Lekarz</title>
 <style>
-body{background:linear-gradient(135deg,#a8e063,#56ab2f);font-family:Arial;text-align:center;padding:15px;color:#1b5e20;margin:0}
-.box{background:white;padding:20px;border-radius:20px;max-width:400px;margin:15px auto;box-shadow:0 5px 20px rgba(0,0,0,0.2)}
-button{background:#2e7d32;color:white;border:0;padding:15px;border-radius:10px;width:100%;font-size:16px;font-weight:bold;cursor:pointer;margin:5px 0}
-img#img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
+body{background:linear-gradient(135deg,#a8e063,#56ab2f);font-family:Arial;text-align:center;padding:20px;color:#1b5e20;margin:0}
+.box{background:white;padding:25px;border-radius:20px;max-width:400px;margin:20px auto;box-shadow:0 5px 20px rgba(0,0,0,0.2)}
+button{background:#2e7d32;color:white;border:0;padding:15px;border-radius:10px;width:100%;font-size:16px;font-weight:bold;cursor:pointer}
+img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
 #wynik{background:#e8f5e9;padding:15px;border-radius:10px;margin-top:15px;display:none;text-align:left}
-.historia-item{background:#f1f8e9;padding:12px;border-radius:10px;margin:10px 0;text-align:left;border-left:4px solid #2e7d32}
-#wyczysc{background:#c62828}
+.porada{background:#fff3cd;border-left:4px solid #ff9800;padding:12px;margin-top:10px;border-radius:5px;text-align:left}
+.porada b{color:#e65100}
 </style>
 </head>
 <body>
 <div class="box">
 <h1>🌿 Zielony Lekarz 🌿</h1>
+<p>Zrób zdjęcie roślinie</p>
 <input type="file" id="f" accept="image/*" capture="environment" style="display:none">
 <button onclick="f.click()">📷 Zrób zdjęcie / Wybierz</button>
 <img id="img">
 <div id="load" style="display:none">Analizuję...</div>
-<div id="wynik"><b>Diagnoza:</b><p id="txt"></p></div>
+<div id="wynik">
+  <b>Diagnoza:</b>
+  <p id="txt"></p>
+  <div class="porada" id="porada"></div>
 </div>
-
-<div class="box">
-<h2>📜 Historia <span id="licznik">(0)</span></h2>
-<div id="historia"></div>
-<button id="wyczysc" onclick="wyczyscHistorie()">Wyczyść historię</button>
 </div>
 
 <script>
-var historia = [];
-
-// BEZPIECZNE WCZYTYWANIE - jak są śmieci to kasuje
-function wczytajHistorie(){
-  try {
-    var dane = localStorage.getItem('zielonyLekarzHistoria');
-    if(dane && dane!== 'undefined'){
-      historia = JSON.parse(dane);
-      if(!Array.isArray(historia)) historia = [];
-    }
-  } catch(e) {
-    localStorage.removeItem('zielonyLekarzHistoria');
-    historia = [];
-  }
-}
-
-f.onchange=function(e){
-  var file=e.target.files[0];
+f.onchange=e=>{
+  let file=e.target.files[0];
   if(!file)return;
-  var r=new FileReader();
-  r.onload=function(ev){
+  let r=new FileReader();
+  r.onload=ev=>{
     img.src=ev.target.result;
     img.style.display='block';
     load.style.display='block';
     wynik.style.display='none';
-    
-    setTimeout(function(){
-      var d=['Roślina wygląda zdrowo! 🌿','Brak wody! Podlej ją.','Za dużo wody. Odstaw 3 dni.','Sprawdź spód liści - mogą być szkodniki.','Za mało światła.','Popalone liście od słońca.'];
-      var diagnoza = d[Math.floor(Math.random()*d.length)];
-      txt.innerText=diagnoza;
+
+    setTimeout(()=>{
+      // BAZA DIAGNOZ + PORAD
+      let baza = [
+        {diagnoza:'Roślina wygląda zdrowo! 🌿', porada:'<b>Co dalej:</b> Kontynuuj podlewanie 1x w tygodniu. Przekręcaj doniczkę żeby rosła równo.'},
+        {diagnoza:'Brak wody! Podlej ją.', porada:'<b>Co zrobić:</b> 1. Podlej obficie aż woda wypłynie dziurką. 2. Spryskaj liście wodą. 3. Następne podlewanie za 3-4 dni.'},
+        {diagnoza:'Za dużo wody. Odstaw 3 dni.', porada:'<b>Co zrobić:</b> 1. Nie podlewaj 5-7 dni. 2. Sprawdź czy doniczka ma dziurki. 3. Porusz ziemię widelcem żeby przeschła.'},
+        {diagnoza:'Sprawdź spód liści - mogą być szkodniki.', porada:'<b>Co zrobić:</b> 1. Przetrzyj liście wodą z szarym mydłem. 2. Izoluj roślinę od innych. 3. Powtórz za 5 dni.'},
+        {diagnoza:'Za mało światła.', porada:'<b>Co zrobić:</b> 1. Postaw bliżej okna. 2. Nie przestawiaj co 2 dni. 3. Zimą doswietlaj lampą 4h dziennie.'},
+        {diagnoza:'Popalone liście od słońca.', porada:'<b>Co zrobić:</b> 1. Odsuń od okna na 1m. 2. Usuń popalone liście. 3. Ustaw zasłonę w południe.'}
+      ];
+
+      let wynik = baza[Math.floor(Math.random()*baza.length)];
+      txt.innerText = wynik.diagnoza;
+      porada.innerHTML = wynik.porada;
       load.style.display='none';
       wynik.style.display='block';
-      dodajDoHistorii(diagnoza, new Date().toLocaleString('pl-PL'));
     },1500);
   }
   r.readAsDataURL(file);
 }
-
-function dodajDoHistorii(diagnoza, data){
-  historia.unshift({diagnoza:diagnoza, data:data});
-  if(historia.length > 15) historia.pop();
-  localStorage.setItem('zielonyLekarzHistoria', JSON.stringify(historia));
-  wyswietlHistorie();
-}
-
-function wyswietlHistorie(){
-  licznik.innerText = '(' + historia.length + ')';
-  
-  if(historia.length === 0){
-    historia.innerHTML = '<p style="color:gray">Brak diagnoz. Zrób pierwsze zdjęcie!</p>';
-    return;
-  }
-  
-  var html = '';
-  for(var i = 0; i < historia.length; i++){
-    var h = historia[i];
-    html = html + '<div class="historia-item"><b>' + h.data + '</b><br>' + h.diagnoza + '</div>';
-  }
-  historia.innerHTML = html;
-}
-
-function wyczyscHistorie(){
-  if(confirm('Wyczyścić historię?')){
-    historia = [];
-    localStorage.removeItem('zielonyLekarzHistoria');
-    wyswietlHistorie();
-  }
-}
-
-// START
-wczytajHistorie();
-wyswietlHistorie();
 </script>
 </body>
 </html>
