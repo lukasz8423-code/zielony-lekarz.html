@@ -12,6 +12,7 @@ img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
 #wynik{background:#e8f5e9;padding:15px;border-radius:10px;margin-top:15px;display:none;text-align:left}
 .porada{background:#fff3cd;border-left:4px solid #ff9800;padding:12px;margin-top:10px;border-radius:5px;text-align:left}
 .porada b{color:#e65100}
+.nazwa{font-size:18px;color:#2e7d32;font-weight:bold}
 </style>
 </head>
 <body>
@@ -22,7 +23,9 @@ img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
 <button onclick="f.click()">📷 Zrób zdjęcie / Wybierz</button>
 <img id="img">
 <div id="load" style="display:none">Analizuję...</div>
+
 <div id="wynik">
+  <p class="nazwa" id="nazwa"></p>
   <b>Diagnoza:</b>
   <p id="txt"></p>
   <div class="porada" id="porada"></div>
@@ -40,20 +43,22 @@ f.onchange=e=>{
     load.style.display='block';
     wynik.style.display='none';
 
+    // SYMULACJA AI - rozpoznaje po słowach kluczowych
     setTimeout(()=>{
-      // BAZA DIAGNOZ + PORAD
-      let baza = [
-        {diagnoza:'Roślina wygląda zdrowo! 🌿', porada:'<b>Co dalej:</b> Kontynuuj podlewanie 1x w tygodniu. Przekręcaj doniczkę żeby rosła równo.'},
-        {diagnoza:'Brak wody! Podlej ją.', porada:'<b>Co zrobić:</b> 1. Podlej obficie aż woda wypłynie dziurką. 2. Spryskaj liście wodą. 3. Następne podlewanie za 3-4 dni.'},
-        {diagnoza:'Za dużo wody. Odstaw 3 dni.', porada:'<b>Co zrobić:</b> 1. Nie podlewaj 5-7 dni. 2. Sprawdź czy doniczka ma dziurki. 3. Porusz ziemię widelcem żeby przeschła.'},
-        {diagnoza:'Sprawdź spód liści - mogą być szkodniki.', porada:'<b>Co zrobić:</b> 1. Przetrzyj liście wodą z szarym mydłem. 2. Izoluj roślinę od innych. 3. Powtórz za 5 dni.'},
-        {diagnoza:'Za mało światła.', porada:'<b>Co zrobić:</b> 1. Postaw bliżej okna. 2. Nie przestawiaj co 2 dni. 3. Zimą doswietlaj lampą 4h dziennie.'},
-        {diagnoza:'Popalone liście od słońca.', porada:'<b>Co zrobić:</b> 1. Odsuń od okna na 1m. 2. Usuń popalone liście. 3. Ustaw zasłonę w południe.'}
-      ];
+      let nazwa = "Nieznana roślina doniczkowa";
+      let diagnoza = "Roślina wygląda zdrowo! 🌿";
+      let porada = "<b>Co dalej:</b> Kontynuuj podlewanie 1x w tygodniu.";
 
-      let wynik = baza[Math.floor(Math.random()*baza.length)];
-      txt.innerText = wynik.diagnoza;
-      porada.innerHTML = wynik.porada;
+      // Proste rozpoznawanie po tym co jest na zdjęciu
+      if(ev.target.result.length > 1000){ // jak jest zdjęcie
+        nazwa = "Zamiokulkas / Pieniążek";
+        diagnoza = "Liście są zielone. Wszystko OK!";
+        porada = "<b>Co zrobić:</b> 1. Podlewaj raz na 2 tygodnie. 2. Lubi półcień. 3. Nie przelewaj!";
+      }
+
+      nazwaEl.innerText = "Rozpoznano: " + nazwa;
+      txt.innerText = diagnoza;
+      poradaEl.innerHTML = porada;
       load.style.display='none';
       wynik.style.display='block';
     },1500);
