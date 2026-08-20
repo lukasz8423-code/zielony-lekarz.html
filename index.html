@@ -5,65 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zielony Lekarz</title>
 <style>
-body{background:linear-gradient(135deg,#a8e063,#56ab2f);font-family:Arial;text-align:center;padding:20px;color:#1b5e20;margin:0}
-.box{background:white;padding:25px;border-radius:20px;max-width:400px;margin:20px auto;box-shadow:0 5px 20px rgba(0,0,0,0.2)}
-button{background:#2e7d32;color:white;border:0;padding:15px;border-radius:10px;width:100%;font-size:16px;font-weight:bold;cursor:pointer}
-img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
-#wynik{background:#e8f5e9;padding:15px;border-radius:10px;margin-top:15px;display:none;text-align:left}
-.porada{background:#fff3cd;border-left:4px solid #ff9800;padding:12px;margin-top:10px;border-radius:5px;text-align:left}
-.porada b{color:#e65100}
-.nazwa{font-size:18px;color:#2e7d32;font-weight:bold}
+body{background:linear-gradient(135deg,#a8e063,#56ab2f);font-family:Arial;text-align:center;padding:20px;color:#1b5e20}
+.box{background:white;padding:25px;border-radius:20px;max-width:400px;margin:20px auto}
+button{background:#2e7d32;color:white;border:0;padding:12px;border-radius:10px;width:100%;margin:5px 0;font-weight:bold}
+#wynik{background:#e8f5e9;padding:15px;border-radius:10px;margin-top:15px;text-align:left}
 </style>
 </head>
 <body>
 <div class="box">
 <h1>🌿 Zielony Lekarz 🌿</h1>
-<p>Zrób zdjęcie roślinie</p>
-<input type="file" id="f" accept="image/*" capture="environment" style="display:none">
-<button onclick="f.click()">📷 Zrób zdjęcie / Wybierz</button>
-<img id="img">
-<div id="load" style="display:none">Analizuję...</div>
-
-<div id="wynik">
-  <p class="nazwa" id="nazwa"></p>
-  <b>Diagnoza:</b>
-  <p id="txt"></p>
-  <div class="porada" id="porada"></div>
-</div>
+<p>Co jest nie tak z rośliną?</p>
+<button onclick="diagnoza('Brak wody')">🥀 Liście są suche i zwisają</button>
+<button onclick="diagnoza('Za dużo wody')">💧 Liście żółkną i gniją</button>
+<button onclick="diagnoza('Szkodniki')">🐛 Na liściach są kropki/pajęczyny</button>
+<button onclick="diagnoza('Za mało światła')">☀️ Roślina się wyciąga</button>
+<div id="wynik" style="display:none"></div>
 </div>
 
 <script>
-f.onchange=e=>{
-  let file=e.target.files[0];
-  if(!file)return;
-  let r=new FileReader();
-  r.onload=ev=>{
-    img.src=ev.target.result;
-    img.style.display='block';
-    load.style.display='block';
-    wynik.style.display='none';
-
-    // SYMULACJA AI - rozpoznaje po słowach kluczowych
-    setTimeout(()=>{
-      let nazwa = "Nieznana roślina doniczkowa";
-      let diagnoza = "Roślina wygląda zdrowo! 🌿";
-      let porada = "<b>Co dalej:</b> Kontynuuj podlewanie 1x w tygodniu.";
-
-      // Proste rozpoznawanie po tym co jest na zdjęciu
-      if(ev.target.result.length > 1000){ // jak jest zdjęcie
-        nazwa = "Zamiokulkas / Pieniążek";
-        diagnoza = "Liście są zielone. Wszystko OK!";
-        porada = "<b>Co zrobić:</b> 1. Podlewaj raz na 2 tygodnie. 2. Lubi półcień. 3. Nie przelewaj!";
-      }
-
-      nazwaEl.innerText = "Rozpoznano: " + nazwa;
-      txt.innerText = diagnoza;
-      poradaEl.innerHTML = porada;
-      load.style.display='none';
-      wynik.style.display='block';
-    },1500);
-  }
-  r.readAsDataURL(file);
+function diagnoza(problem){
+  let odp = {
+    'Brak wody': '<b>Diagnoza:</b> Brak wody!<br><b>Porada:</b> Podlej obficie. Spryskaj liście.',
+    'Za dużo wody': '<b>Diagnoza:</b> Za dużo wody!<br><b>Porada:</b> Odstaw na 7 dni. Sprawdź dziurki w doniczce.',
+    'Szkodniki': '<b>Diagnoza:</b> Prawdopodobnie przędziorki<br><b>Porada:</b> Umyj liście wodą z mydłem. Izoluj roślinę.',
+    'Za mało światła': '<b>Diagnoza:</b> Za mało światła<br><b>Porada:</b> Przesuń bliżej okna. Nie obracaj.'
+  };
+  wynik.innerHTML = odp[problem];
+  wynik.style.display = 'block';
 }
 </script>
 </body>
