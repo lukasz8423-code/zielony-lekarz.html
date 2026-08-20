@@ -10,10 +10,8 @@ body{background:linear-gradient(135deg,#a8e063,#56ab2f);font-family:Arial;text-a
 button{background:#2e7d32;color:white;border:0;padding:15px;border-radius:10px;width:100%;font-size:16px;font-weight:bold;cursor:pointer;margin:5px 0}
 img#img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
 #wynik{background:#e8f5e9;padding:15px;border-radius:10px;margin-top:15px;display:none;text-align:left}
-.historia-item{background:#f1f8e9;padding:10px;border-radius:10px;margin:10px 0;text-align:left;display:flex;align-items:center}
-.historia-item img{width:60px;height:60px;object-fit:cover;border-radius:8px;margin-right:10px;flex-shrink:0}
+.historia-item{background:#f1f8e9;padding:12px;border-radius:10px;margin:10px 0;text-align:left;border-left:4px solid #2e7d32}
 #wyczysc{background:#c62828}
-#debug{font-size:11px;color:gray;margin-top:10px}
 </style>
 </head>
 <body>
@@ -23,97 +21,68 @@ img#img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
 <button onclick="f.click()">📷 Zrób zdjęcie / Wybierz</button>
 <img id="img">
 <div id="load" style="display:none">Analizuję...</div>
-<div id="wynik"><b>Diagnoza:</b><p id="txt"></p><button onclick="zapiszRecznie()">💾 Zapisz do historii</button></div>
+<div id="wynik"><b>Diagnoza:</b><p id="txt"></p></div>
 </div>
 
 <div class="box">
 <h2>📜 Historia <span id="licznik"></span></h2>
 <div id="historia"></div>
 <button id="wyczysc" onclick="wyczyscHistorie()">Wyczyść historię</button>
-<p id="debug"></p>
 </div>
 
 <script>
-let aktualneZdjecie = '';
-let aktualnaDiagnoza = '';
-let historia = [];
-
-// WCZYTAJ HISTORIĘ
-try{
-  historia = JSON.parse(localStorage.getItem('zielonyLekarzHistoria')) || [];
-  debug.innerText = 'Wczytano ' + historia.length + ' wpisów';
-}catch(e){
-  debug.innerText = 'Błąd wczytywania: ' + e.message;
-}
+let historia = JSON.parse(localStorage.getItem('zielonyLekarzHistoria')) || [];
 
 f.onchange=e=>{
   let file=e.target.files[0];
   if(!file)return;
   let r=new FileReader();
   r.onload=ev=>{
-    aktualneZdjecie = ev.target.result;
-    img.src=aktualneZdjecie;
+    img.src=ev.target.result;
     img.style.display='block';
     load.style.display='block';
     wynik.style.display='none';
     
     setTimeout(()=>{
-      let d=['Roślina wygląda zdrowo! 🌿','Brak wody! Podlej ją.','Za dużo wody. Odstaw 3 dni.','Sprawdź spód liści - mogą być szkodniki.','Za mało światła.'];
-      aktualnaDiagnoza = d[Math.floor(Math.random()*d.length)];
-      txt.innerText=aktualnaDiagnoza;
+      let d=['Roślina wygląda zdrowo! 🌿','Brak wody! Podlej ją.','Za dużo wody. Odstaw 3 dni.','Sprawdź spód liści - mogą być szkodniki.','Za mało światła.','Popalone liście od słońca.'];
+      let diagnoza = d[Math.floor(Math.random()*d.length)];
+      txt.innerText=diagnoza;
       load.style.display='none';
       wynik.style.display='block';
+      
+      // ZAPIS TYLKO TEKSTU
+      dodajDoHistorii(diagnoza, new Date().toLocaleString('pl-PL'));
     },1500);
   }
   r.readAsDataURL(file);
 }
 
-function zapiszRecznie(){
-  if(!aktualneZdjecie) return alert('Najpierw zrób zdjęcie!');
-  
-  // Róbmy miniaturkę
-  let imgTemp = new Image();
-  imgTemp.onload = function(){
-    let canvas = document.createElement('canvas');
-    canvas.width = 100; canvas.height = 100;
-    canvas.getContext('2d').drawImage(imgTemp, 0, 0, 100, 100);
-    let miniaturka = canvas.toDataURL('image/jpeg', 0.4);
-    
-    historia.unshift({zdjecie:miniaturka, diagnoza:aktualnaDiagnoza, data:new Date().toLocaleString('pl-PL')});
-    if(historia.length > 6) historia.pop();
-    
-    try{
-      localStorage.setItem('zielonyLekarzHistoria', JSON.stringify(historia));
-      debug.innerText = 'Zapisano! Masz ' + historia.length + ' wpisów';
-      wyswietlHistorie();
-      alert('Zapisano do historii!');
-    }catch(e){
-      alert('Błąd zapisu: Brak miejsca. Wyczyść historię.');
-    }
-  }
-  imgTemp.src = aktualneZdjecie;
+function dodajDoHistorii(diagnoza, data){
+  historia.unshift({diagnoza, data});
+  if(historia.length > 20) historia.pop(); // teraz wejdzie 20 wpisów
+  localStorage.setItem('zielonyLekarzHistoria', JSON.stringify(historia));
+  wyswietlHistorie();
 }
 
 function wyswietlHistorie(){
   licznik.innerText = '(' + historia.length + ')';
   if(historia.length === 0){
-    historiaDiv.innerHTML = '<p style="color:gray">Brak diagnoz. Zrób zdjęcie i kliknij "Zapisz do historii"</p>';
+    historia.innerHTML = '<p style="color:gray">Brak diagnoz</p>';
     return;
   }
-  historiaDiv.innerHTML = historia.map(h => `
+  historia.innerHTML = historia.map(h => `
     <div class="historia-item">
-      <img src="${h.zdjecie}">
-      <div><b>${h.data}</b><br>${h.diagnoza}</div>
+      <b>${h.data}</b><br>
+      ${h.diagnoza}
     </div>
   `).join('');
 }
 
 function wyczyscHistorie(){
-  if(confirm('Wyczyścić?')){
+  if(confirm('Wyczyścić historię?')){
     historia = [];
-    localStorage.clear();
+    localStorage.removeItem('zielonyLekarzHistoria');
     wyswietlHistorie();
-    debug.innerText = 'Wyczyszczono';
   }
 }
 
