@@ -5,11 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zielony Lekarz</title>
 <style>
-body{background:linear-gradient(135deg,#a8e063,#56ab2f);font-family:Arial;text-align:center;padding:20px;color:#1b5e20}
-.box{background:white;padding:25px;border-radius:20px;max-width:400px;margin:50px auto;box-shadow:0 5px 20px rgba(0,0,0,0.2)}
-button{background:#2e7d32;color:white;border:0;padding:15px;border-radius:10px;width:100%;font-size:16px;font-weight:bold;cursor:pointer}
+body{background:linear-gradient(135deg,#a8e063,#56ab2f);font-family:Arial;text-align:center;padding:20px;color:#1b5e20;margin:0}
+.box{background:white;padding:25px;border-radius:20px;max-width:400px;margin:20px auto;box-shadow:0 5px 20px rgba(0,0,0,0.2)}
+button{background:#2e7d32;color:white;border:0;padding:15px;border-radius:10px;width:100%;font-size:16px;font-weight:bold;cursor:pointer;margin:5px 0}
 img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
 #wynik{background:#e8f5e9;padding:15px;border-radius:10px;margin-top:15px;display:none;text-align:left}
+.historia-item{background:#f1f8e9;padding:10px;border-radius:10px;margin:10px 0;text-align:left;font-size:14px}
+.historia-item img{width:60px;height:60px;object-fit:cover;display:inline-block;vertical-align:middle;margin-right:10px}
+.historia-item div{display:inline-block;vertical-align:middle;width:calc(100% - 75px)}
+#wyczysc{background:#c62828}
 </style>
 </head>
 <body>
@@ -22,25 +26,73 @@ img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
 <div id="load" style="display:none">Analizuję...</div>
 <div id="wynik"><b>Diagnoza:</b><p id="txt"></p></div>
 </div>
+
+<div class="box">
+<h2>📜 Historia</h2>
+<div id="historia"></div>
+<button id="wyczysc" onclick="wyczyscHistorie()">Wyczyść historię</button>
+</div>
+
 <script>
+let historia = JSON.parse(localStorage.getItem('zielonyLekarzHistoria')) || [];
+
 f.onchange=e=>{
   let file=e.target.files[0];
   if(!file)return;
   let r=new FileReader();
   r.onload=ev=>{
-    img.src=ev.target.result;
+    let zdjecie = ev.target.result;
+    img.src=zdjecie;
     img.style.display='block';
     load.style.display='block';
     wynik.style.display='none';
     setTimeout(()=>{
       let d=['Roślina wygląda zdrowo! 🌿','Brak wody! Podlej ją.','Za dużo wody. Odstaw 3 dni.','Sprawdź spód liści - mogą być szkodniki.','Za mało światła.'];
-      txt.innerText=d[Math.floor(Math.random()*d.length)];
+      let diagnoza = d[Math.floor(Math.random()*d.length)];
+      txt.innerText=diagnoza;
       load.style.display='none';
       wynik.style.display='block';
+      
+      // ZAPIS DO HISTORII
+      dodajDoHistorii(zdjecie, diagnoza, new Date().toLocaleString('pl-PL'));
     },1500);
   }
   r.readAsDataURL(file);
 }
+
+function dodajDoHistorii(zdjecie, diagnoza, data){
+  historia.unshift({zdjecie, diagnoza, data}); // dodaj na początek
+  if(historia.length > 10) historia.pop(); // max 10 wpisów
+  localStorage.setItem('zielonyLekarzHistoria', JSON.stringify(historia));
+  wyswietlHistorie();
+}
+
+function wyswietlHistorie(){
+  if(historia.length === 0){
+    historiaDiv.innerHTML = '<p style="color:gray">Brak diagnoz</p>';
+    return;
+  }
+  historiaDiv.innerHTML = historia.map(h => `
+    <div class="historia-item">
+      <img src="${h.zdjecie}">
+      <div>
+        <b>${h.data}</b><br>
+        ${h.diagnoza}
+      </div>
+    </div>
+  `).join('');
+}
+
+function wyczyscHistorie(){
+  if(confirm('Na pewno wyczyścić historię?')){
+    historia = [];
+    localStorage.removeItem('zielonyLekarzHistoria');
+    wyswietlHistorie();
+  }
+}
+
+// Wczytaj historię przy starcie
+wyswietlHistorie();
 </script>
 </body>
 </html>
