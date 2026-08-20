@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌿 Zielony Lekarz 🌿</title>
+    <title>🌿 Zielony Lekarz AI 🌿</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -15,95 +15,28 @@
             align-items: center;
             justify-content: center;
         }
-        .container { 
+       .container { 
             max-width: 500px; 
             width: 100%;
             background: rgba(255,255,255,0.95); 
             padding: 30px; 
             border-radius: 25px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            animation: fadeIn 0.6s ease;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
         h1 { color: #1b5e20; font-size: 28px; margin-bottom: 8px; }
-        .subtitle { color: #388e3c; margin-bottom: 25px; font-size: 14px; }
-        
-        .btn { 
+       .subtitle { color: #388e3c; margin-bottom: 25px; font-size: 14px; }
+       .btn { 
             background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); 
-            color: white; 
-            border: none; 
-            padding: 18px 20px; 
-            border-radius: 15px; 
-            font-size: 17px; 
-            font-weight: bold;
-            margin: 10px 0; 
-            cursor: pointer; 
-            width: 100%;
-            transition: transform 0.2s;
-            box-shadow: 0 4px 15px rgba(46,125,50,0.3);
+            color: white; border: none; padding: 18px 20px; border-radius: 15px; 
+            font-size: 17px; font-weight: bold; margin: 10px 0; cursor: pointer; width: 100%;
         }
-        .btn:active { transform: scale(0.97); }
-        
-        #preview { 
-            max-width: 100%; 
-            margin-top: 20px; 
-            border-radius: 20px; 
-            display: none;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-            animation: fadeIn 0.5s;
-        }
+        #preview { max-width: 100%; margin-top: 20px; border-radius: 20px; display: none; }
         #wynik { 
             background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); 
-            padding: 20px; 
-            border-radius: 15px; 
-            margin-top: 20px; 
-            display: none;
+            padding: 20px; border-radius: 15px; margin-top: 20px; display: none;
             border-left: 5px solid #2e7d32;
-            animation: fadeIn 0.5s;
         }
         #wynik h3 { color: #1b5e20; margin-bottom: 10px; }
-        #loading { 
-            display: none; 
-            color: #2e7d32; 
-            font-weight: bold;
-            margin-top: 15px;
-        }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #2e7d32;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 10px auto;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🌿 Zielony Lekarz</h1>
-        <p class="subtitle">Zrób zdjęcie roślinie, a ja powiem co jej dolega</p>
-        
-        <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">
-        <button class="btn" onclick="document.getElementById('fileInput').click()">📷 Zrób zdjęcie / Wybierz z galerii</button>
-        
-        <img id="preview">
-        <div id="loading"><div class="loader"></div>Analizuję roślinę...</div>
-        
-        <div id="wynik">
-            <h3>🩺 Diagnoza:</h3>
-            <p id="diagnozaTekst"></p>
-        </div>
-    </div>
-
-    <script>
-        const fileInput = document.getElementById('fileInput');
-        const preview = document.getElementById('preview');
-        const wynik = document.getElementById('wynik');
-        const diagnozaTekst = document.getElementById('diagnozaTekst');
-        const loading = document.getElementById('loading');
-
-        fileInput.addEventListener('change', function(e) {
-            const file = e.target.files
+        #loading { display: none; text-align: center; color: #2e7d32; font-weight: bold; }
+       .loader { border: 4px solid #f3f3f3; border-top: 4px solid #2e7d32; border-radius: 50%;
+            width: 40px; height: 40px; animation: spin 1s linear
