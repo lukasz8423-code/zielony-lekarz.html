@@ -25,13 +25,21 @@ img#img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
 </div>
 
 <div class="box">
-<h2>📜 Historia <span id="licznik"></span></h2>
-<div id="historia"></div>
+<h2>📜 Historia <span id="licznik">(0)</span></h2>
+<div id="historia"><p style="color:gray">Ładowanie...</p></div>
 <button id="wyczysc" onclick="wyczyscHistorie()">Wyczyść historię</button>
 </div>
 
 <script>
-let historia = JSON.parse(localStorage.getItem('zielonyLekarzHistoria')) || [];
+let historia = [];
+
+// WCZYTAJ BEZPIECZNIE
+try {
+  let dane = localStorage.getItem('zielonyLekarzHistoria');
+  if(dane) historia = JSON.parse(dane);
+} catch(e) {
+  historia = [];
+}
 
 f.onchange=e=>{
   let file=e.target.files[0];
@@ -49,8 +57,6 @@ f.onchange=e=>{
       txt.innerText=diagnoza;
       load.style.display='none';
       wynik.style.display='block';
-      
-      // ZAPIS TYLKO TEKSTU
       dodajDoHistorii(diagnoza, new Date().toLocaleString('pl-PL'));
     },1500);
   }
@@ -59,23 +65,29 @@ f.onchange=e=>{
 
 function dodajDoHistorii(diagnoza, data){
   historia.unshift({diagnoza, data});
-  if(historia.length > 20) historia.pop(); // teraz wejdzie 20 wpisów
+  if(historia.length > 20) historia.pop();
   localStorage.setItem('zielonyLekarzHistoria', JSON.stringify(historia));
   wyswietlHistorie();
 }
 
 function wyswietlHistorie(){
   licznik.innerText = '(' + historia.length + ')';
+  
   if(historia.length === 0){
-    historia.innerHTML = '<p style="color:gray">Brak diagnoz</p>';
+    historia.innerHTML = '<p style="color:gray">Brak diagnoz. Zrób pierwsze zdjęcie!</p>';
     return;
   }
-  historia.innerHTML = historia.map(h => `
-    <div class="historia-item">
-      <b>${h.data}</b><br>
-      ${h.diagnoza}
-    </div>
-  `).join('');
+  
+  // ZWYKŁA PĘTLA ZAMIAST MAP - działa na każdym telefonie
+  let html = '';
+  for(let i = 0; i < historia.length; i++){
+    let h = historia[i];
+    html += '<div class="historia-item">';
+    html += '<b>' + h.data + '</b><br>';
+    html += h.diagnoza;
+    html += '</div>';
+  }
+  historia.innerHTML = html;
 }
 
 function wyczyscHistorie(){
@@ -86,6 +98,7 @@ function wyczyscHistorie(){
   }
 }
 
+// ODPAL PRZY STARTOWIE
 wyswietlHistorie();
 </script>
 </body>
