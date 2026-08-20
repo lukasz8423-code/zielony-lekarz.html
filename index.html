@@ -26,34 +26,40 @@ img#img{max-width:100%;border-radius:15px;margin-top:15px;display:none}
 
 <div class="box">
 <h2>📜 Historia <span id="licznik">(0)</span></h2>
-<div id="historia"><p style="color:gray">Ładowanie...</p></div>
+<div id="historia"></div>
 <button id="wyczysc" onclick="wyczyscHistorie()">Wyczyść historię</button>
 </div>
 
 <script>
-let historia = [];
+var historia = [];
 
-// WCZYTAJ BEZPIECZNIE
-try {
-  let dane = localStorage.getItem('zielonyLekarzHistoria');
-  if(dane) historia = JSON.parse(dane);
-} catch(e) {
-  historia = [];
+// BEZPIECZNE WCZYTYWANIE - jak są śmieci to kasuje
+function wczytajHistorie(){
+  try {
+    var dane = localStorage.getItem('zielonyLekarzHistoria');
+    if(dane && dane!== 'undefined'){
+      historia = JSON.parse(dane);
+      if(!Array.isArray(historia)) historia = [];
+    }
+  } catch(e) {
+    localStorage.removeItem('zielonyLekarzHistoria');
+    historia = [];
+  }
 }
 
-f.onchange=e=>{
-  let file=e.target.files[0];
+f.onchange=function(e){
+  var file=e.target.files[0];
   if(!file)return;
-  let r=new FileReader();
-  r.onload=ev=>{
+  var r=new FileReader();
+  r.onload=function(ev){
     img.src=ev.target.result;
     img.style.display='block';
     load.style.display='block';
     wynik.style.display='none';
     
-    setTimeout(()=>{
-      let d=['Roślina wygląda zdrowo! 🌿','Brak wody! Podlej ją.','Za dużo wody. Odstaw 3 dni.','Sprawdź spód liści - mogą być szkodniki.','Za mało światła.','Popalone liście od słońca.'];
-      let diagnoza = d[Math.floor(Math.random()*d.length)];
+    setTimeout(function(){
+      var d=['Roślina wygląda zdrowo! 🌿','Brak wody! Podlej ją.','Za dużo wody. Odstaw 3 dni.','Sprawdź spód liści - mogą być szkodniki.','Za mało światła.','Popalone liście od słońca.'];
+      var diagnoza = d[Math.floor(Math.random()*d.length)];
       txt.innerText=diagnoza;
       load.style.display='none';
       wynik.style.display='block';
@@ -64,8 +70,8 @@ f.onchange=e=>{
 }
 
 function dodajDoHistorii(diagnoza, data){
-  historia.unshift({diagnoza, data});
-  if(historia.length > 20) historia.pop();
+  historia.unshift({diagnoza:diagnoza, data:data});
+  if(historia.length > 15) historia.pop();
   localStorage.setItem('zielonyLekarzHistoria', JSON.stringify(historia));
   wyswietlHistorie();
 }
@@ -78,14 +84,10 @@ function wyswietlHistorie(){
     return;
   }
   
-  // ZWYKŁA PĘTLA ZAMIAST MAP - działa na każdym telefonie
-  let html = '';
-  for(let i = 0; i < historia.length; i++){
-    let h = historia[i];
-    html += '<div class="historia-item">';
-    html += '<b>' + h.data + '</b><br>';
-    html += h.diagnoza;
-    html += '</div>';
+  var html = '';
+  for(var i = 0; i < historia.length; i++){
+    var h = historia[i];
+    html = html + '<div class="historia-item"><b>' + h.data + '</b><br>' + h.diagnoza + '</div>';
   }
   historia.innerHTML = html;
 }
@@ -98,7 +100,8 @@ function wyczyscHistorie(){
   }
 }
 
-// ODPAL PRZY STARTOWIE
+// START
+wczytajHistorie();
 wyswietlHistorie();
 </script>
 </body>
